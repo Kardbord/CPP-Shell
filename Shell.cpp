@@ -78,7 +78,7 @@ void Shell::run() {
 }
 
 // Prompts a user for input and returns the result
-std::string Shell::prompt() {
+std::string Shell::prompt() const {
     std::cout << "[cmd]: ";
     std::string input = "";
     std::getline(std::cin, input);
@@ -88,7 +88,7 @@ std::string Shell::prompt() {
 // @input_args contains the user's command and all of its arguments.
 // This function translates the command its arguments into cstrings,
 // then passes them off to the OS via execvp to be executed
-void Shell::exec_cmd(std::vector<std::string> const &input_args) {
+void Shell::exec_cmd(std::vector<std::string> const &input_args) const {
     char** argv = new char*[input_args.size() + 1];
     for (unsigned int i = 0; i < input_args.size(); ++i) {
         // cstrings require a null terminator, hence the + 1
@@ -104,7 +104,7 @@ void Shell::exec_cmd(std::vector<std::string> const &input_args) {
 }
 
 // Prints the contents of m_history
-void Shell::printHistory() {
+void Shell::printHistory() const {
     std::cout << std::endl << "-- Command History --" << std::endl << std::endl;
     for (unsigned int i = 0; i < m_history.size(); ++i) {
         std::cout << std::setw(std::to_string(m_history.size()).length()) << i << " : " << m_history.at(i) << std::endl;
@@ -172,14 +172,14 @@ bool Shell::isBuiltIn(std::vector<std::string> const &input_args) {
     return false;
 }
 
-void Shell::printPtime() {
+void Shell::printPtime() const {
     std::cout << std::endl << "Time spent executing child processes: "
               << std::fixed << std::setprecision(4)
               << m_child_time_total.count() << " seconds" << std::endl << std::endl;
 }
 
 // Returns the amount of time spent waiting on a child process to finish executing
-Duration Shell::timeChild() {
+Duration Shell::timeChild() const {
     Time_Point start = High_Res_Clock::now();
     wait(NULL);
     Time_Point end = High_Res_Clock::now();

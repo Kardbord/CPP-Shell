@@ -80,18 +80,18 @@ private:
     // ------------------------ PRIVATE MEMBER FUNCTIONS ---------------------------------- //
 
     // Prompts a user for input and returns the result
-    std::string prompt();
+    std::string prompt() const;
 
     // Prints a message displaying the amount of time (stored in @m_child_time_total) spent executing child processes
-    void printPtime();
+    void printPtime() const;
 
     // @input_args contains the user's command and all of its arguments.
     // This function translates the command its arguments into cstrings,
     // then passes them off to the OS via execvp to be executed
-    void exec_cmd(std::vector<std::string> const &input_args);
+    void exec_cmd(std::vector<std::string> const &input_args) const;
 
     // Prints the contents of m_history
-    void printHistory();
+    void printHistory() const;
 
     // Runs the command in m_history[@entry]
     Duration runHistoryEntry(std::string const &entry);
@@ -102,7 +102,7 @@ private:
     bool isBuiltIn(std::vector<std::string> const &input_args);
 
     // Returns the amount of time spent waiting on a child process to finish executing
-    Duration timeChild();
+    Duration timeChild() const;
 
 };
 
