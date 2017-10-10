@@ -10,21 +10,24 @@
 Shell::Shell() :
     M_CMD_DELIMITER(" "), M_EXIT_CMD("exit"),
     M_HISTORY("history"), M_RUN_HISTORY("^"),
-    M_PTIME("ptime"),
+    M_PTIME("ptime"), M_CD("cd"),
     M_INCLUDE_RUN_HISTORY(false),
+    M_HOME(this->getWD()),
     m_history(), m_child_time_total(0) {}
 
 Shell::Shell(bool const & include_run_hist) :
     M_CMD_DELIMITER(" "), M_EXIT_CMD("exit"),
     M_HISTORY("history"), M_RUN_HISTORY("^"),
-    M_PTIME("ptime"),
+    M_PTIME("ptime"), M_CD("cd"),
+    M_HOME(this->getWD()),
     M_INCLUDE_RUN_HISTORY(include_run_hist),
     m_history(), m_child_time_total(0) {}
 
 Shell::Shell(bool const & include_run_hist, std::string const & run_hist_cmd) :
     M_CMD_DELIMITER(" "), M_EXIT_CMD("exit"),
     M_HISTORY("history"), M_RUN_HISTORY(run_hist_cmd),
-    M_PTIME("ptime"),
+    M_PTIME("ptime"), M_CD("cd"),
+    M_HOME(this->getWD()),
     M_INCLUDE_RUN_HISTORY(include_run_hist),
     m_history(), m_child_time_total(0) {}
 
@@ -33,7 +36,8 @@ Shell::Shell(bool const & include_run_hist, std::string const & run_hist_cmd,
              std::string const & ptime, std::string const cmd_delim) :
     M_CMD_DELIMITER(cmd_delim), M_EXIT_CMD(exit_cmd),
     M_HISTORY(hist_cmd), M_RUN_HISTORY(run_hist_cmd),
-    M_INCLUDE_RUN_HISTORY(include_run_hist),
+    M_INCLUDE_RUN_HISTORY(include_run_hist), M_CD("cd"),
+    M_HOME(this->getWD()),
     M_PTIME(ptime) {}
 
 void Shell::run() {
@@ -157,6 +161,11 @@ Duration Shell::runHistoryEntry(std::string const &entry) {
 // If not, it returns false
 bool Shell::isBuiltIn(std::vector<std::string> const &input_args) {
 
+    if (input_args.at(0) == M_CD) {
+        changeDirectory(input_args);
+        return true;
+    }
+
     if (input_args.at(0) == M_HISTORY) {
         printHistory();
         return true;
@@ -205,3 +214,15 @@ std::string Shell::getWD() const {
     return wd;
 }
 
+// Attempts to change the working directory to the directory provided in @input_args[1]
+// If no argument is provided, attempts to change to @M_HOME directory
+// See http://pubs.opengroup.org/onlinepubs/009695399/functions/chdir.html
+void Shell::changeDirectory(std::vector<std::string> const & input_args) const {
+    if (input_args.size() < 2) {
+        // store result in an int to avoid compiler warning
+        int ret = chdir(M_HOME.c_str());
+        return;
+    }
+    // store result in an int to avoid compiler warning
+    int ret = chdir(input_args.at(1).c_str());
+}

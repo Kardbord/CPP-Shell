@@ -19,7 +19,7 @@
 #include <chrono>     // timing capabilities
 #include <iomanip>    // setw()
 #include <cstring>    // strcpy()
-#include <unistd.h>   // execvp(), fork()
+#include <unistd.h>   // execvp(), fork(), getcwd(), chdir()
 #include <sys/wait.h> // wait()
 
 using Duration = std::chrono::duration<double>;
@@ -67,6 +67,12 @@ private:
     // The user command to run a history item
     const std::string M_RUN_HISTORY;
 
+    // The user command to change directory
+    const std::string M_CD;
+
+    // Directory that this shell executable was launched from
+    const std::string M_HOME;
+
     // If true, @M_RUN_HISTORY commands will also be included in history
     const bool M_INCLUDE_RUN_HISTORY;
 
@@ -106,6 +112,10 @@ private:
 
     // Returns a string containing the current working directory
     std::string getWD() const;
+
+    // Attempts to change the working directory to the directory provided in @input_args[1]
+    // If no argument is provided, attempts to change to @M_HOME directory
+    void changeDirectory(std::vector<std::string> const & input_args) const;
 
 };
 
