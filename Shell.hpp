@@ -104,6 +104,9 @@ private:
     // Returns the amount of time spent waiting on a child process to finish executing
     Duration timeChild() const;
 
+    // Returns a string containing the current working directory
+    std::string getWD() const;
+
 };
 
 #endif

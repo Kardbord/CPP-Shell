@@ -79,7 +79,7 @@ void Shell::run() {
 
 // Prompts a user for input and returns the result
 std::string Shell::prompt() const {
-    std::cout << "[cmd]: ";
+    std::cout << "[" << getWD() << "]: ";
     std::string input = "";
     std::getline(std::cin, input);
     return input;
@@ -186,4 +186,22 @@ Duration Shell::timeChild() const {
     return end - start;
 }
 
+// Returns a string containing the current working directory
+// or "cmd" in the event of a failure
+// See http://pubs.opengroup.org/onlinepubs/009695399/functions/getcwd.html
+std::string Shell::getWD() const {
+    long size = pathconf(".", _PC_PATH_MAX);
+    char * buf;
+    std::string wd = "cmd";
+    if ((buf = (char *)malloc((size_t)size)) != NULL) {
+        wd = getcwd(buf, (size_t) size);
+    }
+
+    free(buf);
+
+    // TODO: Wash hands cuz you touched 'malloc'
+    // TODO: Pray to the goddess Mnemosyne that this isn't leaking memory
+
+    return wd;
+}
 
