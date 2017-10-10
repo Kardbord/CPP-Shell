@@ -67,7 +67,7 @@ private:
     // The user command to run a history item
     const std::string M_RUN_HISTORY;
 
-    // If true, @RUN_HISTORY commands will also be included in history
+    // If true, @M_RUN_HISTORY commands will also be included in history
     const bool M_INCLUDE_RUN_HISTORY;
 
     // An unparsed history of user commands for the session, regardless of command validity
@@ -76,7 +76,8 @@ private:
     // Total time spent executing child processes
     Duration m_child_time_total;
 
-    // ------------------------------ FUNCTIONS ------------------------------------------ //
+
+    // ------------------------ PRIVATE MEMBER FUNCTIONS ---------------------------------- //
 
     // Prompts a user for input and returns the result
     std::string prompt();
