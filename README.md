@@ -8,7 +8,7 @@ ptime : total amount of time spent executing child processes (the shell is the p
 
 history : prints a numbered history of commands entered since launching the shell
 
-`^ `<number>` : executes the corresponding command from history
+^ \<number\> : executes the corresponding command from history
 
 exit : exits the shell
 
