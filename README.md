@@ -1,6 +1,6 @@
 ### Introduction
 
-This is a bare bones command shell supporting some UNIX commands.
+This is a bare bones command shell supporting most UNIX commands.
 
 Built-in commands:
 
