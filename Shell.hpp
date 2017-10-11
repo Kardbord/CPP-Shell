@@ -77,6 +77,13 @@ private:
     // If true, @M_RUN_HISTORY commands will also be included in history
     const bool M_INCLUDE_RUN_HISTORY;
 
+    // Piping constants
+    const int PIPE_COUNT = 2;
+    const int PIPE_READ_END = 0;
+    const int PIPE_WRITE_END = 1;
+    const int STDIN = 0;
+    const int STDOUT = 1;
+
     // An unparsed history of user commands for the session, regardless of command validity
     std::vector<std::string> m_history;
 
@@ -121,6 +128,15 @@ private:
     // Handles interrupt signal @signum
     // See https://www.tutorialspoint.com/cplusplus/cpp_signal_handling.htm
     static void signalHandler(int signum) { /* do nothing, just catch the signal */ }
+
+    // Checks a string for pipes
+    // Returns a vector of uints containing the positions of the pipes in @input
+    std::vector<unsigned int> pipePositions(std::string const & input) const;
+
+    // @input_args contains the user's command and all of its arguments, including any pipes
+    // This function translates the command and its arguments into cstrings,
+    // then passes them to the OS via execvp to be executed
+    void exec_pipe_cmd(std::vector<std::string> const & input_args, std::vector<unsigned int> pipe_positions) const;
 
 };
 

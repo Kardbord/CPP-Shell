@@ -93,6 +93,19 @@ std::string Shell::prompt() const {
     return input;
 }
 
+// Checks a string for pipes
+// Returns a vector of uints containing the positions of the pipes in @input
+std::vector<unsigned int> Shell::pipePositions(std::string const & input) const {
+    std::vector<unsigned int> pipePositions;
+    size_t start_pos = 0;
+    size_t found_pos = 0;
+    while ((found_pos = input.find("|", start_pos)) != std::string::npos) {
+        pipePositions.push_back((unsigned int)found_pos);
+        start_pos = found_pos + 1; // +1 to account for the pipe itself
+    }
+    return pipePositions;
+}
+
 // @input_args contains the user's command and all of its arguments.
 // This function translates the command its arguments into cstrings,
 // then passes them off to the OS via execvp to be executed
