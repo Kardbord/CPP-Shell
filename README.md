@@ -1,4 +1,5 @@
-Introduction
+### Introduction
+
 This is a bare bones command shell supporting some UNIX commands.
 
 Built-in commands:
@@ -11,7 +12,7 @@ history : prints a numbered history of commands entered since launching the shel
 
 exit : exits the shell
 
-Assignment Description
+### Assignment Description
 (taken from Canvas)
 
 A shell is a user program or environment provides for user interaction. The shell is a command language interpreter that accepts commands from standard input (the keyboard) and executes them. A shell may simply accept user commands and pass them off to the operating system to execute them, it may additionally provide mechanisms, such as redirecting the output of one program to the input of another.
@@ -56,7 +57,7 @@ To repeat, the following are the built in commands you need to provide:
     ^ <number>
     exit
 
-Notes
+### Notes
 
     Create a CMakeLists.txt file that CMake can use to create a makefile that builds your program.
     You must use fork, execvp, wait, and std::chrono to complete this assignment.
