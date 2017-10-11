@@ -21,6 +21,7 @@
 #include <cstring>    // strcpy()
 #include <unistd.h>   // execvp(), fork(), getcwd(), chdir()
 #include <sys/wait.h> // wait()
+#include <csignal>    // signal()
 
 using Duration = std::chrono::duration<double>;
 using High_Res_Clock = std::chrono::high_resolution_clock;
@@ -116,6 +117,10 @@ private:
     // Attempts to change the working directory to the directory provided in @input_args[1]
     // If no argument is provided, attempts to change to @M_HOME directory
     void changeDirectory(std::vector<std::string> const & input_args) const;
+
+    // Handles interrupt signal @signum
+    // See https://www.tutorialspoint.com/cplusplus/cpp_signal_handling.htm
+    static void signalHandler(int signum) { /* do nothing, just catch the signal */ }
 
 };
 

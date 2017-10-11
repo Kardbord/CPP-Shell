@@ -41,6 +41,10 @@ Shell::Shell(bool const & include_run_hist, std::string const & run_hist_cmd,
     M_PTIME(ptime) {}
 
 void Shell::run() {
+
+    // register signal SIGINT with signalHandler
+    signal(SIGINT, Shell::signalHandler);
+
     std::vector<std::string> input_args;
     std::string input = "";
     while (true) {
