@@ -12,6 +12,7 @@ Shell::Shell() :
     M_HISTORY("history"), M_RUN_HISTORY("^"),
     M_PTIME("ptime"), M_CD("cd"),
     M_INCLUDE_RUN_HISTORY(false),
+    M_PIPE_DELIM(" | "),
     M_HOME(this->getWD()),
     m_history(), m_child_time_total(0) {}
 
@@ -20,6 +21,7 @@ Shell::Shell(bool const & include_run_hist) :
     M_HISTORY("history"), M_RUN_HISTORY("^"),
     M_PTIME("ptime"), M_CD("cd"),
     M_HOME(this->getWD()),
+    M_PIPE_DELIM(" | "),
     M_INCLUDE_RUN_HISTORY(include_run_hist),
     m_history(), m_child_time_total(0) {}
 
@@ -28,16 +30,18 @@ Shell::Shell(bool const & include_run_hist, std::string const & run_hist_cmd) :
     M_HISTORY("history"), M_RUN_HISTORY(run_hist_cmd),
     M_PTIME("ptime"), M_CD("cd"),
     M_HOME(this->getWD()),
+    M_PIPE_DELIM(" | "),
     M_INCLUDE_RUN_HISTORY(include_run_hist),
     m_history(), m_child_time_total(0) {}
 
 Shell::Shell(bool const & include_run_hist, std::string const & run_hist_cmd,
              std::string const & hist_cmd, std::string const & exit_cmd,
-             std::string const & ptime, std::string const cmd_delim) :
+             std::string const & ptime, std::string const & pipe_delim, std::string const cmd_delim) :
     M_CMD_DELIMITER(cmd_delim), M_EXIT_CMD(exit_cmd),
     M_HISTORY(hist_cmd), M_RUN_HISTORY(run_hist_cmd),
     M_INCLUDE_RUN_HISTORY(include_run_hist), M_CD("cd"),
     M_HOME(this->getWD()),
+    M_PIPE_DELIM(pipe_delim),
     M_PTIME(ptime) {}
 
 void Shell::run() {
@@ -95,15 +99,16 @@ std::string Shell::prompt() const {
 
 // Checks a string for pipes
 // Returns a vector of uints containing the positions of the pipes in @input
-std::vector<unsigned int> Shell::pipePositions(std::string const & input) const {
-    std::vector<unsigned int> pipePositions;
+std::vector<std::string> Shell::parse_pipe_args(std::string const & input) const {
+    std::vector<std::string> pipe_args;
     size_t start_pos = 0;
     size_t found_pos = 0;
-    while ((found_pos = input.find("|", start_pos)) != std::string::npos) {
-        pipePositions.push_back((unsigned int)found_pos);
-        start_pos = found_pos + 1; // +1 to account for the pipe itself
+    while ((found_pos = input.find(M_PIPE_DELIM, start_pos)) != std::string::npos) {
+        pipe_args.push_back(input.substr(start_pos, found_pos - start_pos));
+        start_pos = found_pos + M_PIPE_DELIM.length();
     }
-    return pipePositions;
+    pipe_args.push_back(input.substr(start_pos, input.length() - start_pos));
+    return pipe_args;
 }
 
 // @input_args contains the user's command and all of its arguments.

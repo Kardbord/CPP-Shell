@@ -40,7 +40,7 @@ public:
 
     Shell(bool const & include_run_hist, std::string const & run_hist_cmd,
           std::string const & hist_cmd, std::string const & exit_cmd,
-          std::string const & ptime, std::string const cmd_delim = " ");
+          std::string const & ptime, std::string const & pipe_delim, std::string const cmd_delim = " ");
 
 
     // ------------------------ PUBLIC MEMBER FUNCTIONS ---------------------------------- //
@@ -76,6 +76,9 @@ private:
 
     // If true, @M_RUN_HISTORY commands will also be included in history
     const bool M_INCLUDE_RUN_HISTORY;
+
+    // The user command to pipe output
+    const std::string M_PIPE_DELIM;
 
     // Piping constants
     const int PIPE_COUNT = 2;
@@ -131,12 +134,7 @@ private:
 
     // Checks a string for pipes
     // Returns a vector of uints containing the positions of the pipes in @input
-    std::vector<unsigned int> pipePositions(std::string const & input) const;
-
-    // @input_args contains the user's command and all of its arguments, including any pipes
-    // This function translates the command and its arguments into cstrings,
-    // then passes them to the OS via execvp to be executed
-    void exec_pipe_cmd(std::vector<std::string> const & input_args, std::vector<unsigned int> pipe_positions) const;
+    std::vector<std::string> parse_pipe_args(std::string const & input) const;
 
 };
 
