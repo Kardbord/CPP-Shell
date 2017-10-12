@@ -107,8 +107,13 @@ private:
     // then passes them off to the OS via execvp to be executed
     void exec_cmd(std::vector<std::string> const &input_args) const;
 
-    // Determines how to run the users input
+    // Determines how to run the users unpiped input
     void run_cmd(std::vector<std::string> const & input_args);
+
+    // Determines how to run the users piped input
+    // Will not exit the Shell if the first command is exit
+    // @input is the entire string of commands input by the user
+    void run_piped_cmd(std::string const & input);
 
     // Prints the contents of m_history
     void printHistory() const;
@@ -138,10 +143,6 @@ private:
     // Handles interrupt signal @signum
     // See https://www.tutorialspoint.com/cplusplus/cpp_signal_handling.htm
     static void signalHandler(int signum) { /* do nothing, just catch the signal */ }
-
-    // Checks a string for pipes
-    // Returns a vector of uints containing the positions of the pipes in @input
-    std::vector<std::string> parse_pipe_args(std::string const & input) const;
 
 };
 

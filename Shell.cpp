@@ -53,7 +53,7 @@ void Shell::filterHistory(std::vector<std::string> const & input_args) {
     }
 }
 
-// Determines how to run the users input
+// Determines how to run the users unpiped input
 void Shell::run_cmd(std::vector<std::string> const & input_args) {
     filterHistory(input_args);
 
@@ -75,6 +75,12 @@ void Shell::run_cmd(std::vector<std::string> const & input_args) {
     }
 }
 
+// Determines how to run the users piped input
+// Will not exit the Shell if the first command is exit
+// @input is the entire string of commands input by the user
+void run_piped_cmd(std::string const & input) {
+}
+
 void Shell::run() {
 
     // register signal SIGINT with signalHandler
@@ -90,7 +96,7 @@ void Shell::run() {
 
             // check for pipes
             if (input.find(M_PIPE_DELIM) != std::string::npos) {
-                // TODO: pipe stuff
+                run_piped_cmd(input);
             } else {
                 parse_string(m_history.back(), M_CMD_DELIMITER, input_args);
                 if (input_args.size() > 0) {
@@ -108,20 +114,6 @@ std::string Shell::prompt() const {
     std::string input = "";
     std::getline(std::cin, input);
     return input;
-}
-
-// Checks a string for pipes
-// Returns a vector of uints containing the positions of the pipes in @input
-std::vector<std::string> Shell::parse_pipe_args(std::string const & input) const {
-    std::vector<std::string> pipe_args;
-    size_t start_pos = 0;
-    size_t found_pos = 0;
-    while ((found_pos = input.find(M_PIPE_DELIM, start_pos)) != std::string::npos) {
-        pipe_args.push_back(input.substr(start_pos, found_pos - start_pos));
-        start_pos = found_pos + M_PIPE_DELIM.length();
-    }
-    pipe_args.push_back(input.substr(start_pos, input.length() - start_pos));
-    return pipe_args;
 }
 
 // @input_args contains the user's command and all of its arguments.
