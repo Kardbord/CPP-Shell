@@ -81,9 +81,6 @@ private:
     const std::string M_PIPE_DELIM;
 
     // Piping constants
-    const int PIPE_COUNT = 2;
-    const int PIPE_READ_END = 0;
-    const int PIPE_WRITE_END = 1;
     const int STDIN = 0;
     const int STDOUT = 1;
 

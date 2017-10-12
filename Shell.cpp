@@ -57,7 +57,7 @@ void Shell::filterHistory(std::vector<std::string> const & input_args) {
 void Shell::run_cmd(std::vector<std::string> const & input_args) {
     filterHistory(input_args);
 
-    // Check if command is built-in 
+    // Check if command is built-in
     if (!isBuiltIn(input_args)) {
         // Otherwise, send it to OS
         if (fork()) {
@@ -78,7 +78,66 @@ void Shell::run_cmd(std::vector<std::string> const & input_args) {
 // Determines how to run the users piped input
 // Will not exit the Shell if the first command is exit
 // @input is the entire string of commands input by the user
-void run_piped_cmd(std::string const & input) {
+void Shell::run_piped_cmd(std::string const & input) {
+    // vector containing each individual command in the pipe sequence and its arguments
+    std::vector<std::string> pipe_chunks;
+    parse_string(input, M_PIPE_DELIM, pipe_chunks);
+
+    int savedStdout = dup(STDOUT);
+    int savedStdin = dup(STDIN);
+
+    // Each pipe (e.g. cat to grep and grep to cut) has two ends - in and out
+    int num_pipe_ends = (pipe_chunks.size() - 1) * 2;
+    int pipes[num_pipe_ends];
+
+
+    for (int i = 0; i < num_pipe_ends / 2; ++i) {
+        // store result to avoid compiler warning
+        int res = pipe(pipes + (i * 2));
+    }
+    
+    int read_end = 0;
+    int write_end = 1;
+    for (int i = 0; i < pipe_chunks.size(); ++i) {
+        std::vector<std::string> input_args;
+        parse_string(pipe_chunks.at(i), M_CMD_DELIMITER, input_args);
+        if (fork() == 0) {
+            if (i == 0) {
+                // first time through the loop
+                dup2(pipes[write_end], STDOUT);
+                write_end += 2;
+                for (int j = 0; j < num_pipe_ends; ++j) close(pipes[j]);
+                exec_cmd(input_args);
+            }
+            else if (i == pipe_chunks.size() - 1) {
+                // last time through the loop
+                dup2(pipes[num_pipe_ends - 2], STDIN);
+                for (int j = 0; j < num_pipe_ends; ++j) close(pipes[j]);
+                exec_cmd(input_args);
+            }
+            else {
+                dup2(pipes[read_end], STDIN);
+                read_end += 2;
+                dup2(pipes[write_end], STDOUT);
+                write_end += 2;
+                for (int j = 0; j < num_pipe_ends; ++j) close(pipes[j]);
+                exec_cmd(input_args);
+            }
+        }
+
+    }
+
+    for (int j = 0; j < num_pipe_ends; ++j) close(pipes[j]);
+    // wait for each child process
+    for (int i = 0; i < pipe_chunks.size(); ++i) {
+        // TODO: project hangs here while waiting for last child
+        std::cout << "Waiting" << std::endl;
+        m_child_time_total += timeChild();
+    }
+
+    dup2(savedStdout, STDOUT);
+    dup2(savedStdin, STDIN);
+
 }
 
 void Shell::run() {
@@ -98,7 +157,7 @@ void Shell::run() {
             if (input.find(M_PIPE_DELIM) != std::string::npos) {
                 run_piped_cmd(input);
             } else {
-                parse_string(m_history.back(), M_CMD_DELIMITER, input_args);
+                parse_string(input, M_CMD_DELIMITER, input_args);
                 if (input_args.size() > 0) {
                     if (input_args.at(0) == M_EXIT_CMD) return;
                     run_cmd(input_args);
