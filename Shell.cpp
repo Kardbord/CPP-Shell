@@ -44,6 +44,37 @@ Shell::Shell(bool const & include_run_hist, std::string const & run_hist_cmd,
     M_PIPE_DELIM(pipe_delim),
     M_PTIME(ptime) {}
 
+// Checks if the user entered the @M_RUN_HISTORY command and if so,
+// decides whether or not to include that command in history based on @M_INCLUDE_RUN_HISTORY
+void Shell::filterHistory(std::vector<std::string> const & input_args) {
+    if (!M_INCLUDE_RUN_HISTORY) {
+        // If command is M_RUN_HISTORY, remove it from m_history to prevent confusion
+        if (input_args.at(0) == M_RUN_HISTORY) m_history.pop_back();
+    }
+}
+
+// Determines how to run the users input
+void Shell::run_cmd(std::vector<std::string> const & input_args) {
+    filterHistory(input_args);
+
+    // Check if command is built-in 
+    if (!isBuiltIn(input_args)) {
+        // Otherwise, send it to OS
+        if (fork()) {
+            // parent process executes here
+
+            // wait for child process to terminate before continuing
+            m_child_time_total += timeChild();
+        } else {
+            // child process executes here
+
+            exec_cmd(input_args);
+            // remove all chance of fork bomb
+            exit(EXIT_SUCCESS);
+        }
+    }
+}
+
 void Shell::run() {
 
     // register signal SIGINT with signalHandler
@@ -56,33 +87,15 @@ void Shell::run() {
         input = prompt();
         if (input != "") {
             m_history.push_back(input);
-            parse_string(m_history.back(), M_CMD_DELIMITER, input_args);
-        }
 
-        if (input_args.size() > 0) {
-
-            if (!M_INCLUDE_RUN_HISTORY) {
-                // If command is M_RUN_HISTORY, remove it from m_history to prevent confusion
-                if (input_args.at(0) == M_RUN_HISTORY) m_history.pop_back();
-            }
-
-            // Check if command is built-in or the M_EXIT_CMD
-            if (input_args.at(0) == M_EXIT_CMD) return;
-            if (!isBuiltIn(input_args)) {
-                // Otherwise, send it to OS
-                if (fork()) {
-                    // parent process executes here
-
-                    // wait for child process to terminate before continuing
-                    m_child_time_total += timeChild();
-                } else {
-                    // child process executes here
-
-                    exec_cmd(input_args);
-                    // remove all chance of fork bomb
-                    return;
-                    // can't be too careful...
-                    exit(EXIT_FAILURE);
+            // check for pipes
+            if (input.find(M_PIPE_DELIM) != std::string::npos) {
+                // TODO: pipe stuff
+            } else {
+                parse_string(m_history.back(), M_CMD_DELIMITER, input_args);
+                if (input_args.size() > 0) {
+                    if (input_args.at(0) == M_EXIT_CMD) return;
+                    run_cmd(input_args);
                 }
             }
         }

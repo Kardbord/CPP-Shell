@@ -77,7 +77,7 @@ private:
     // If true, @M_RUN_HISTORY commands will also be included in history
     const bool M_INCLUDE_RUN_HISTORY;
 
-    // The user command to pipe output
+    // The delimiter to indicate a pipe should occur
     const std::string M_PIPE_DELIM;
 
     // Piping constants
@@ -107,6 +107,9 @@ private:
     // then passes them off to the OS via execvp to be executed
     void exec_cmd(std::vector<std::string> const &input_args) const;
 
+    // Determines how to run the users input
+    void run_cmd(std::vector<std::string> const & input_args);
+
     // Prints the contents of m_history
     void printHistory() const;
 
@@ -120,6 +123,10 @@ private:
 
     // Returns the amount of time spent waiting on a child process to finish executing
     Duration timeChild() const;
+
+    // Checks if the user entered the @M_RUN_HISTORY command and if so,
+    // decides whether or not to include that command in history based on @M_INCLUDE_RUN_HISTORY
+    void filterHistory(std::vector<std::string> const & input_args);
 
     // Returns a string containing the current working directory
     std::string getWD() const;
