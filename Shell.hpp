@@ -27,6 +27,8 @@ using Duration = std::chrono::duration<double>;
 using High_Res_Clock = std::chrono::high_resolution_clock;
 using Time_Point = std::chrono::time_point<High_Res_Clock>;
 
+// TODO: allow for redirecting STDOUT with '>'
+// TODO: allow for piping with built-in commands
 class Shell {
 public:
 
