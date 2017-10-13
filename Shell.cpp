@@ -78,7 +78,11 @@ void Shell::run_cmd(std::vector<std::string> const & input_args) {
 // Determines how to run the users piped input
 // Will not exit the Shell if the first command is exit
 // @input is the entire string of commands input by the user
+// Adapted from https://gist.github.com/zed/7540510
 void Shell::run_piped_cmd(std::string const & input) {
+    int savedStdout = dup(STDOUT);
+    int savedStdin = dup(STDIN);
+    
     // vector containing each individual command in the pipe sequence and its arguments
     std::vector<std::string> pipe_chunks;
     parse_string(input, M_PIPE_DELIM, pipe_chunks);
@@ -94,14 +98,12 @@ void Shell::run_piped_cmd(std::string const & input) {
         int res = pipe(fd); // store value to avoid compiler warning
         pid = fork();
         if (pid == 0) { // child
-            std::cout << "CHILD 1" << std::endl;
             close(fd[0]);
             redirect(in, STDIN);
             redirect(fd[1], STDOUT);
             exec_cmd(input_args); // should not return
             exit(EXIT_FAILURE);
         } else { // parent
-            std::cout << "PARENT 1" << std::endl;
             close(fd[1]);
             close(in);
             in = fd[0]; // next command reads from here
@@ -110,15 +112,15 @@ void Shell::run_piped_cmd(std::string const & input) {
     }
     if (fork() == 0) { // child
         // run last command
-        std::cout << "CHILD 2" << std::endl;
         std::vector<std::string> input_args;
         parse_string(pipe_chunks.back(), M_CMD_DELIMITER, input_args);
         redirect(in, STDIN);
         exec_cmd(input_args); // should not return
         exit(EXIT_FAILURE);
     } else { // parent
-        std::cout << "PARENT 2" << std::endl;
         for (int i = 0; i < pipe_chunks.size(); ++i) wait(NULL);
+        dup2(savedStdout, STDOUT);
+        dup2(savedStdin, STDIN);
     }
 
 }
@@ -156,7 +158,6 @@ void Shell::run() {
                 }
             }
         }
-        else {std::cout << "HERE I AM " << std::endl;}
     }
 }
 
