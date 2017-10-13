@@ -110,6 +110,7 @@ private:
     // Determines how to run the users piped input
     // Will not exit the Shell if the first command is exit
     // @input is the entire string of commands input by the user
+    // Adapted from https://gist.github.com/zed/7540510
     void run_piped_cmd(std::string const & input);
 
     // Prints the contents of m_history
