@@ -83,61 +83,53 @@ void Shell::run_piped_cmd(std::string const & input) {
     std::vector<std::string> pipe_chunks;
     parse_string(input, M_PIPE_DELIM, pipe_chunks);
 
-    int savedStdout = dup(STDOUT);
-    int savedStdin = dup(STDIN);
-
-    // Each pipe (e.g. cat to grep and grep to cut) has two ends - in and out
-    int num_pipe_ends = (pipe_chunks.size() - 1) * 2;
-    int pipes[num_pipe_ends];
-
-
-    for (int i = 0; i < num_pipe_ends / 2; ++i) {
-        // store result to avoid compiler warning
-        int res = pipe(pipes + (i * 2));
-    }
-    
-    int read_end = 0;
-    int write_end = 1;
-    for (int i = 0; i < pipe_chunks.size(); ++i) {
+    int in = STDIN;
+    for (int i = 0; i < pipe_chunks.size() - 1; ++i) { // run all but the last command
         std::vector<std::string> input_args;
         parse_string(pipe_chunks.at(i), M_CMD_DELIMITER, input_args);
-        if (fork() == 0) {
-            if (i == 0) {
-                // first time through the loop
-                dup2(pipes[write_end], STDOUT);
-                write_end += 2;
-                for (int j = 0; j < num_pipe_ends; ++j) close(pipes[j]);
-                exec_cmd(input_args);
-            }
-            else if (i == pipe_chunks.size() - 1) {
-                // last time through the loop
-                dup2(pipes[num_pipe_ends - 2], STDIN);
-                for (int j = 0; j < num_pipe_ends; ++j) close(pipes[j]);
-                exec_cmd(input_args);
-            }
-            else {
-                dup2(pipes[read_end], STDIN);
-                read_end += 2;
-                dup2(pipes[write_end], STDOUT);
-                write_end += 2;
-                for (int j = 0; j < num_pipe_ends; ++j) close(pipes[j]);
-                exec_cmd(input_args);
-            }
+
+        int fd[2]; // read/write pipe ends
+        pid_t pid; // child's pid
+
+        int res = pipe(fd); // store value to avoid compiler warning
+        pid = fork();
+        if (pid == 0) { // child
+            std::cout << "CHILD 1" << std::endl;
+            close(fd[0]);
+            redirect(in, STDIN);
+            redirect(fd[1], STDOUT);
+            exec_cmd(input_args); // should not return
+            exit(EXIT_FAILURE);
+        } else { // parent
+            std::cout << "PARENT 1" << std::endl;
+            close(fd[1]);
+            close(in);
+            in = fd[0]; // next command reads from here
+            wait(NULL);
         }
-
+    }
+    if (fork() == 0) { // child
+        // run last command
+        std::cout << "CHILD 2" << std::endl;
+        std::vector<std::string> input_args;
+        parse_string(pipe_chunks.back(), M_CMD_DELIMITER, input_args);
+        redirect(in, STDIN);
+        exec_cmd(input_args); // should not return
+        exit(EXIT_FAILURE);
+    } else { // parent
+        std::cout << "PARENT 2" << std::endl;
+        for (int i = 0; i < pipe_chunks.size(); ++i) wait(NULL);
     }
 
-    for (int j = 0; j < num_pipe_ends; ++j) close(pipes[j]);
-    // wait for each child process
-    for (int i = 0; i < pipe_chunks.size(); ++i) {
-        // TODO: project hangs here while waiting for last child
-        std::cout << "Waiting" << std::endl;
-        m_child_time_total += timeChild();
+}
+
+// Redirects fd's for piping purposes
+// Adapted heavily from https://gist.github.com/zed/7540510
+void Shell::redirect(int oldfd, int newfd) {
+    if (oldfd != newfd) {
+        dup2(oldfd, newfd);
+        close(oldfd);
     }
-
-    dup2(savedStdout, STDOUT);
-    dup2(savedStdin, STDIN);
-
 }
 
 void Shell::run() {
@@ -164,6 +156,7 @@ void Shell::run() {
                 }
             }
         }
+        else {std::cout << "HERE I AM " << std::endl;}
     }
 }
 

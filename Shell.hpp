@@ -141,6 +141,10 @@ private:
     // See https://www.tutorialspoint.com/cplusplus/cpp_signal_handling.htm
     static void signalHandler(int signum) { /* do nothing, just catch the signal */ }
 
+    // Redirects fd's for piping purposes
+    // Adapted heavily from https://gist.github.com/zed/7540510
+    void redirect(int oldfd, int newfd);
+
 };
 
 #endif
