@@ -108,7 +108,7 @@ void Shell::run_piped_cmd(std::string const & input) {
             close(fd[1]);
             close(in);
             in = fd[0]; // next command reads from here
-            wait(NULL);
+            m_child_time_total += timeChild();
         }
     }
     if (fork() == 0) { // child
@@ -119,7 +119,7 @@ void Shell::run_piped_cmd(std::string const & input) {
         exec_cmd(input_args); // should not return
         exit(EXIT_FAILURE);
     } else { // parent
-        for (int i = 0; i < pipe_chunks.size(); ++i) wait(NULL);
+        for (int i = 0; i < pipe_chunks.size(); ++i) m_child_time_total += timeChild();
         // Restore standard out and standard in so the shell will work normally
         dup2(savedStdout, STDOUT);
         dup2(savedStdin, STDIN);
