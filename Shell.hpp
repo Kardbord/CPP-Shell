@@ -108,6 +108,7 @@ private:
     void run_cmd(std::vector<std::string> const & input_args);
 
     // Determines how to run the users piped input
+    // Pipes do not currently work with built-in commands
     // Will not exit the Shell if the first command is exit
     // @input is the entire string of commands input by the user
     // Adapted from https://gist.github.com/zed/7540510

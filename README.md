@@ -2,6 +2,10 @@
 
 This is a bare bones command shell supporting most UNIX commands.
 
+Tab completion is not supported.
+
+Piping is supported, but only for Bash commands. None of the built-in commands below will work with pipes.
+
 Built-in commands:
 
 ptime : total amount of time spent executing child processes (the shell is the parent/main process)
