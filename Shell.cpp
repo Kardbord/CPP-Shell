@@ -120,6 +120,7 @@ void Shell::run_piped_cmd(std::string const & input) {
         exit(EXIT_FAILURE);
     } else { // parent
         for (int i = 0; i < pipe_chunks.size(); ++i) wait(NULL);
+        // Restore standard out and standard in so the shell will work normally
         dup2(savedStdout, STDOUT);
         dup2(savedStdin, STDIN);
     }
