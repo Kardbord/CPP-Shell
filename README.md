@@ -1,20 +1,16 @@
 ### Introduction
 
-This is a bare bones command shell supporting most UNIX commands.
+This is a bare bones command shell supporting most UNIX commands. Originally written for CS3100 (OS and Concurrency).
 
 Tab completion is not supported.
 
 Piping is supported, but only for Bash commands. None of the built-in commands below will work with pipes.
 
 Built-in commands:
-
-ptime : total amount of time spent executing child processes (the shell is the parent/main process)
-
-history : prints a numbered history of commands entered since launching the shell
-
-^ \<number\> : executes the corresponding command from history
-
-exit : exits the shell
+* ptime : total amount of time spent executing child processes (the shell is the parent/main process)
+* history : prints a numbered history of commands entered since launching the shell
+* ^ \<number\> : executes the corresponding command from history
+* exit : exits the shell
 
 ### Assignment Description
 (taken from Canvas)
